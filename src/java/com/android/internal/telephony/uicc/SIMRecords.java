@@ -500,10 +500,10 @@ public class SIMRecords extends IccRecords {
         }
     }
 
-    // Validate data is !null and the MSP (Multiple Subscriber Profile)
+    // Validate data is !null, >= 16 bytes, and the MSP (Multiple Subscriber Profile)
     // byte is between 1 and 4. See ETSI TS 131 102 v11.3.0 section 4.2.64.
     private boolean validEfCfis(byte[] data) {
-        return ((data != null) && (data[0] >= 1) && (data[0] <= 4));
+        return ((data != null) && (data.length >= 16) && (data[0] >= 1) && (data[0] <= 4));
     }
 
     public int getVoiceMessageCount() {
@@ -591,7 +591,7 @@ public class SIMRecords extends IccRecords {
                         + " invalid mEfCfis=" + IccUtils.bytesToHexString(mEfCfis));
             }
 
-            if (mEfCff != null) {
+            if (mEfCff != null && mEfCff.length > 0) {
                 if (enable) {
                     mEfCff[0] = (byte) ((mEfCff[0] & CFF_LINE1_RESET)
                             | CFF_UNCONDITIONAL_ACTIVE);
@@ -1526,7 +1526,7 @@ public class SIMRecords extends IccRecords {
             // Refer TS 51.011 Section 10.3.46 for the content description
             mCallForwardingStatus = (mEfCfis[1] & 0x01);
             log("EF_CFIS: callForwardingEnabled=" + mCallForwardingStatus);
-        } else if (mEfCff != null) {
+        } else if (mEfCff != null && mEfCff.length > 0) {
             mCallForwardingStatus =
                     ((mEfCff[0] & CFF_LINE1_MASK) == CFF_UNCONDITIONAL_ACTIVE) ?
                             CALL_FORWARDING_STATUS_ENABLED : CALL_FORWARDING_STATUS_DISABLED;

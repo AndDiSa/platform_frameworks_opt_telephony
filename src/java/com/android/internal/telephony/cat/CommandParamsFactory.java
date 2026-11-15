@@ -16,6 +16,9 @@
 
 package com.android.internal.telephony.cat;
 
+import android.app.ActivityThread;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
@@ -802,6 +805,15 @@ class CommandParamsFactory extends Handler {
     private boolean processLaunchBrowser(CommandDetails cmdDet,
             List<ComprehensionTlv> ctlvs) throws ResultException {
 
+        Context context = ActivityThread.currentApplication();
+        KeyguardManager keyguardManager = context != null
+                ? (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE)
+                : null;
+        if (keyguardManager != null && keyguardManager.isDeviceLocked()) {
+            CatLog.d(this, "The device is locked, cannot launch the Browser");
+            throw new ResultException(ResultCode.LAUNCH_BROWSER_ERROR,
+                    "The device is locked, unable to process the command.");
+        }
         CatLog.d(this, "process LaunchBrowser");
 
         TextMessage confirmMsg = new TextMessage();
